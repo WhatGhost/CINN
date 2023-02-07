@@ -1001,11 +1001,11 @@ class NetBuilder {
 
   /**
    * @brief l2-Norm
-   * @param operand The input operand to be normed.
+   * @param x The input operand to be normed.
    * @param axis The axis on which to apply normalization.
    * @param epsilon The epsilon value is used to avoid division by zero.
    */
-  Variable Norm(const Variable& operand, int axis = -1, float epsilon = 1e-12f);
+  Variable Norm(const Variable& x, int axis = -1, float epsilon = 1e-12f);
 
  private:
   CINN_DISALLOW_COPY_AND_ASSIGN(NetBuilder);

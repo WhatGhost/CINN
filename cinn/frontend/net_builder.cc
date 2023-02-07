@@ -676,8 +676,8 @@ Variable NetBuilder::Cholesky(const Variable& x, bool upper) {
   return CustomInstr("cholesky", {x}, {{"upper", upper}}).front();
 }
 
-Variable Norm(const Variable& operand, int axis = -1, float epsilon = 1e-12f) {
-  Instruction instr("norm", {operand});
+Variable Norm(const Variable& x, int axis = -1, float epsilon = 1e-12f) {
+  Instruction instr("norm", {x});
   instr.SetAttr<int32_t>("axis", axis);
   instr.SetAttr<float>("epsilon", epsilon);
   InferShape(instr);
