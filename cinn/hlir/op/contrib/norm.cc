@@ -148,7 +148,8 @@ CINN_REGISTER_HELPER(norm_ops) {
       .set_attr<cinn::hlir::framework::StrategyFunction>("CINNStrategy", cinn::hlir::op::StrategyForNorm)
       .set_attr("infershape", MakeOpFunction(cinn::hlir::op::InferShapeForNorm))
       .set_attr("inferdtype", MakeOpFunction(cinn::hlir::op::InferDtypeForNorm))
-      .set_support_level(4);
+      .set_attr<cinn::hlir::framework::OpPatternKind>("OpPattern", cinn::hlir::framework::OpPatternKind::kNonFusible);
+  // .set_support_level(4);
 
   return true;
 }

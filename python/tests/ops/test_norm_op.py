@@ -52,10 +52,10 @@ class TestNormOp(OpTest):
     # the forward result will be incorrect.
     def build_cinn_program(self, target):
         builder = NetBuilder("norm")
-        table = builder.create_input(Float(32), self.inputs["x"].shape, "x")
+        x = builder.create_input(Float(32), self.inputs["x"].shape, "x")
         # ids = builder.create_input(
         #     Int(64), self.inputs["ids"].shape + (1, ), "ids")
-        out = builder.norm(table, self.axis, self.epsilon)
+        out = builder.norm(x, self.axis, self.epsilon)
         prog = builder.build()
         forward_res = self.get_cinn_output(prog, target, [x],
                                            [self.inputs["x"]], [out])
