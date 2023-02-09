@@ -14,7 +14,6 @@ gather_srcs(cinnapi_src SRCS
         gaussian_random.cc
         uniform_random.cc
         cholesky.cc
-        norm.cc
         )
 
 cc_test(test_gather_nd SRCS gather_nd_test.cc DEPS cinncore)
@@ -27,4 +26,3 @@ cc_test(test_repeat SRCS repeat_test.cc DEPS cinncore)
 cc_test(test_one_hot SRCS one_hot_test.cc DEPS cinncore)
 cc_test(test_lookup_table SRCS lookup_table_test.cc DEPS cinncore)
 cc_test(test_reciprocal SRCS reciprocal_test.cc DEPS cinncore)
-cc_test(test_norm SRCS norm_test.cc DEPS cinncore)
