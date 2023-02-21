@@ -85,6 +85,7 @@ void LayerNormOpMapper(const paddle::cpp::OpDesc& op_desc, const OpMapperContext
   const auto& x_type = x->type;
   if (x_type.is_float(16)) {
     x = builder->Cast(x, "float32");
+    VLOG(4) << "-- [layer_norm] cast x from fp16 to fp32 ";
   }
 
   std::vector<int> shape{left, right};
@@ -95,6 +96,8 @@ void LayerNormOpMapper(const paddle::cpp::OpDesc& op_desc, const OpMapperContext
   auto x_mean = builder->Divide(x_reduce, ele_num);
 
   // use `E[|x|^2] - |E[x]|^2` instead of `E[|x - E[x]|^2])` to compute variance
+  VLOG(4) << "-- [layer_norm] mul lhr.type =  " << x_reshape->type
+          << " rhs.type = " << builder->Identity(x_reshape)->type;
   auto x2        = builder->Multiply(x_reshape, builder->Identity(x_reshape));
   auto x2_reduce = builder->ReduceSum(x2, {1});
   auto x2_mean   = builder->Divide(x2_reduce, ele_num);
