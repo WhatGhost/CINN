@@ -101,9 +101,10 @@ void LayerNormOpMapper(const paddle::cpp::OpDesc& op_desc, const OpMapperContext
   auto x2        = builder->Multiply(x_reshape, builder->Identity(x_reshape));
   auto x2_reduce = builder->ReduceSum(x2, {1});
   auto x2_mean   = builder->Divide(x2_reduce, ele_num);
-  auto x_mean2   = builder->Multiply(x_mean, builder->Identity(x_mean));
-  auto zero      = builder->FillConstant({left}, 0.f, common::UniqName("layer_norm_zero"), common::Type2Str(x->type));
-  auto x_var     = builder->Max(builder->Subtract(x2_mean, x_mean2), zero);
+  VLOG(4) << "-- [layer_norm] mul_2 lhr.type =  " << x_mean->type << " rhs.type = " << builder->Identity(x_mean)->type;
+  auto x_mean2 = builder->Multiply(x_mean, builder->Identity(x_mean));
+  auto zero    = builder->FillConstant({left}, 0.f, common::UniqName("layer_norm_zero"), common::Type2Str(x->type));
+  auto x_var   = builder->Max(builder->Subtract(x2_mean, x_mean2), zero);
 
   // compute x norm
   auto x_mean_broadcast = builder->BroadcastTo(x_mean, shape, {0});
@@ -117,7 +118,8 @@ void LayerNormOpMapper(const paddle::cpp::OpDesc& op_desc, const OpMapperContext
   // multiply scale
   if (scale) {
     auto scale_broadcast = builder->BroadcastTo(*scale, shape, {1});
-    y_out                = builder->Multiply(y_out, scale_broadcast);
+    VLOG(4) << "-- [layer_norm] mul_scale lhr.type =  " << y_out->type << " rhs.type = " << scale_broadcast->type;
+    y_out = builder->Multiply(y_out, scale_broadcast);
   }
 
   // add bias
