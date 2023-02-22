@@ -117,6 +117,7 @@ void LayerNormOpMapper(const paddle::cpp::OpDesc& op_desc, const OpMapperContext
 
   // multiply scale
   if (scale) {
+    VLOG(4) << "-- [layer_norm] scale.type =  " << (*scale)->type;
     auto scale_broadcast = builder->BroadcastTo(*scale, shape, {1});
     VLOG(4) << "-- [layer_norm] mul_scale lhr.type =  " << y_out->type << " rhs.type = " << scale_broadcast->type;
     y_out = builder->Multiply(y_out, scale_broadcast);
@@ -124,6 +125,7 @@ void LayerNormOpMapper(const paddle::cpp::OpDesc& op_desc, const OpMapperContext
 
   // add bias
   if (bias) {
+    VLOG(4) << "-- [layer_norm] bias.type =  " << (*bias)->type;
     auto bias_broadcast = builder->BroadcastTo(*bias, shape, {1});
     y_out               = builder->Add(y_out, bias_broadcast);
   }
