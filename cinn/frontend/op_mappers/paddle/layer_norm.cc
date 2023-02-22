@@ -130,7 +130,11 @@ void LayerNormOpMapper(const paddle::cpp::OpDesc& op_desc, const OpMapperContext
   if (bias) {
     VLOG(4) << "-- [layer_norm] bias.type =  " << (*bias)->type;
     auto bias_broadcast = builder->BroadcastTo(*bias, shape, {1});
-    y_out               = builder->Add(y_out, bias_broadcast);
+    if ((*bias)->type.is_float(16)) {
+      bias_broadcast = builder->Cast(bias_broadcast, "float32");
+    }
+    VLOG(4) << "-- [layer_norm] add_bias lhr.type =  " << y_out->type << " rhs.type = " << bias_broadcast->type;
+    y_out = builder->Add(y_out, bias_broadcast);
   }
 
   // reshape to the original shape
