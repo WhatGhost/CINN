@@ -119,6 +119,9 @@ void LayerNormOpMapper(const paddle::cpp::OpDesc& op_desc, const OpMapperContext
   if (scale) {
     VLOG(4) << "-- [layer_norm] scale.type =  " << (*scale)->type;
     auto scale_broadcast = builder->BroadcastTo(*scale, shape, {1});
+    if ((*scale)->type.is_float(16)) {
+      scale_broadcast = builder->Cast(scale_broadcast, "float32");
+    }
     VLOG(4) << "-- [layer_norm] mul_scale lhr.type =  " << y_out->type << " rhs.type = " << scale_broadcast->type;
     y_out = builder->Multiply(y_out, scale_broadcast);
   }
