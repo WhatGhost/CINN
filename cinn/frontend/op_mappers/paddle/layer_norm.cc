@@ -114,13 +114,19 @@ void LayerNormOpMapper(const paddle::cpp::OpDesc& op_desc, const OpMapperContext
   // multiply scale
   if (scale) {
     auto scale_broadcast = builder->BroadcastTo(*scale, shape, {1});
-    y_out                = builder->Multiply(y_out, scale_broadcast);
+    if ((*scale)->type.is_float(16)) {
+      scale_broadcast = builder->Cast(scale_broadcast, "float32");
+    }
+    y_out = builder->Multiply(y_out, scale_broadcast);
   }
 
   // add bias
   if (bias) {
     auto bias_broadcast = builder->BroadcastTo(*bias, shape, {1});
-    y_out               = builder->Add(y_out, bias_broadcast);
+    if ((*bias)->type.is_float(16)) {
+      bias_broadcast = builder->Cast(bias_broadcast, "float32");
+    }
+    y_out = builder->Add(y_out, bias_broadcast);
   }
 
   // reshape to the original shape
