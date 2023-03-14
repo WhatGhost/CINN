@@ -2058,9 +2058,59 @@ std::shared_ptr<OpStrategy> StrategyForDropoutInfer(const framework::NodeAttr &a
     *ret        = CINNValuePack{{CINNValue(out), CINNValue(stages)}};
   });
 
+  CINNSchedule dropout_infer_schedule = CINNSchedule([=](lang::Args args, lang::RetValue *ret) {
+    if (FLAGS_cinn_ir_schedule) {
+      CHECK(!args.empty()) << "The input argument of InjectiveSchedule is empty! Please check.\n";
+      common::CINNValuePack arg_pack = args[0];
+      std::vector<Expr> vec_ast;
+      for (int i = 0; i < arg_pack.size(); i++) {
+        if (arg_pack[i].is_expr()) {
+          Expr temp = arg_pack[i];
+          vec_ast.emplace_back(temp);
+        }
+      }
+      CHECK(!vec_ast.empty());
+      ir::ModuleExpr mod_expr(vec_ast);
+      ir::IRSchedule ir_sch(mod_expr);
+      ir_sch.MergeExprs();
+      // pe::IRInjectiveSchedule(ir_sch, output_shapes.front(), target);
+      const std::vector<int> &output_shape = output_shapes.front();
+      VLOG(3) << "Before IRInjectiveSchedule, new ir is : " << ir_sch.GetModule().GetExprs().at(0);
+      if (target == common::DefaultNVGPUTarget()) {
+        auto blocks = ir_sch.GetAllBlocks();
+        ir_sch.FlattenLoops(ir_sch.GetLoops(blocks[0]), false);
+        ir_sch.SetBuffer(blocks[0], "local", true);
+        auto loops = ir_sch.GetLoops(blocks[0]);
+        auto size  = std::accumulate(output_shape.begin(), output_shape.end(), 1, std::multiplies<int>());
+        if (size <= target.max_num_threads()) {
+          ir_sch.Bind(loops[0], "threadIdx.x");
+        } else {
+          auto splited = ir_sch.Split(loops[0], {-1, target.max_num_threads() / 4});
+          ir_sch.Bind(splited[0], "blockIdx.x");
+          ir_sch.Bind(splited[1], "threadIdx.x");
+        }
+      } else {
+        // IRScheduleInjectiveCPU(ir_sch, output_shape, target, false);
+        auto blocks = ir_sch.GetAllBlocks();
+        ir_sch.FlattenLoops(ir_sch.GetLoops(blocks[0]), false);
+      }
+      VLOG(3) << "After IRInjectiveSchedule, new ir is : " << ir_sch.GetModule().GetExprs().at(0);
+      /*if (target.arch == Target::Arch::NVGPU) {
+        pe::IRInjectiveSchedule(ir_sch, output_shapes.front(), target);
+      } else if (target.arch == Target::Arch::X86) {
+        pe::IRScheduleInjectiveCPU(ir_sch, output_shapes.front(), target, vectorizable);
+      }*/
+      std::vector<common::CINNValue> res{common::CINNValue(ir_sch.GetModule().GetExprs().at(0))};
+      *ret = common::CINNValuePack{res};
+    } else {
+      LOG(FATAL) << "Not support FLAGS_cinn_ir_schedule=false in dropout scheduler";
+    }
+  });
+
   auto strategy = std::make_shared<framework::OpStrategy>();
-  strategy->AddImpl(
-      dropout_infer_compute, GetInjectiveScheduleFunc(output_shapes, target), "strategy.dropout_infer.x86", 1);
+  // strategy->AddImpl(
+  //     dropout_infer_compute, GetInjectiveScheduleFunc(output_shapes, target), "strategy.dropout_infer.x86", 1);
+  strategy->AddImpl(dropout_infer_compute, dropout_infer_schedule, "strategy.dropout_infer.x86", 1);
 
   return strategy;
 }
