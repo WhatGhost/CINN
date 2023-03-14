@@ -14,6 +14,8 @@
 
 #include "cinn/hlir/pass/fusion_merge_pass_util.h"
 
+DECLARE_bool(cinn_gen_viz_groups);
+
 namespace cinn {
 namespace hlir {
 namespace pass {
@@ -927,9 +929,11 @@ class FusionMergePassHelper : public FusionHelperBase {
 };
 
 void FusionMergePassInternal(Graph* graph) {
-  VLOG(3) << "Before FusionMergePass Viz:\n";
-  graph->VisualizeGroupedGraph(std::unordered_set<std::string>{});
-  VLOG(3) << "Before FusionMergePass Viz END:\n";
+  if (FLAGS_cinn_gen_viz_groups) {
+    VLOG(4) << "Before FusionMergePass Viz:\n";
+    graph->VisualizeGroupedGraph(std::unordered_set<std::string>{});
+    VLOG(4) << "Before FusionMergePass Viz END:\n";
+  }
 
   VLOG(3) << "Before FusionMergePass:\n" << graph->DebugGroupedGraph(std::unordered_set<std::string>{});
   if (graph->fusion_groups.size() <= 1) {
@@ -939,9 +943,11 @@ void FusionMergePassInternal(Graph* graph) {
 
   FusionMergePassHelper fusion_merge_pass_helper(graph);
   graph->fusion_groups = fusion_merge_pass_helper();
-  VLOG(3) << "After FusionMergePass Viz:\n";
-  graph->VisualizeGroupedGraph(std::unordered_set<std::string>{});
-  VLOG(3) << "After FusionMergePass Viz END:\n";
+  if (FLAGS_cinn_gen_viz_groups) {
+    VLOG(4) << "After FusionMergePass Viz:\n";
+    graph->VisualizeGroupedGraph(std::unordered_set<std::string>{});
+    VLOG(4) << "After FusionMergePass Viz END:\n";
+  }
   VLOG(3) << "After FusionMergePass:\n" << graph->DebugGroupedGraph(std::unordered_set<std::string>{});
 }
 

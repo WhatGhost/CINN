@@ -87,6 +87,10 @@ DEFINE_string(cinn_fusion_groups_graphviz_dir,
               StringFromEnv("FLAGS_cinn_fusion_groups_graphviz_dir", ""),
               "Specify the directory path of dot file of graph, which is used for debug.");
 
+DEFINE_bool(cinn_gen_viz_groups,
+            BoolFromEnv("FLAGS_cinn_gen_viz_groups", false),
+            "Whether enable gen viz groups after fusion passes.");
+
 DEFINE_string(cinn_source_code_save_path,
               StringFromEnv("FLAGS_cinn_source_code_save_path", ""),
               "Specify the directory path of generated source code, which is used for debug.");
