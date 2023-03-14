@@ -64,7 +64,7 @@ void IRInjectiveSchedule(ir::IRSchedule &ir_sch, const std::vector<int> &output_
   if (target == common::DefaultNVGPUTarget()) {
     auto blocks = ir_sch.GetAllBlocks();
     ir_sch.FlattenLoops(ir_sch.GetLoops(blocks[0]), false);
-
+    ir_sch.SetBuffer(blocks[0], "local", true);
     auto loops = ir_sch.GetLoops(blocks[0]);
     auto size  = std::accumulate(output_shape.begin(), output_shape.end(), 1, std::multiplies<int>());
     if (size <= target.max_num_threads()) {
