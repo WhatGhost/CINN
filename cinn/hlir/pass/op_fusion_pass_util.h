@@ -260,7 +260,10 @@ CONDITION_FUNC(elementwise_broadcast_same_size_in_axes) {
   }
   auto producer_shape      = helper->GetNodeDataShape(producer);
   auto consumer_node_shape = helper->GetNodeDataShape(consumer_node);
-  auto broadcast_axes      = absl::get<std::vector<int>>(consumer_node->attrs.attr_store.at("broadcast_axes"));
+  if (consumer_node->attrs.attr_store.find("broadcast_axes") == consumer_node->attrs.attr_store.end()) {
+    return false;
+  }
+  auto broadcast_axes = absl::get<std::vector<int>>(consumer_node->attrs.attr_store.at("broadcast_axes"));
   if (producer_shape.size() != broadcast_axes.size()) {
     VLOG(4) << "producer.shape.size is wrong = " << producer_shape.size()
             << " producer.node_name=" << producer->attrs.node_name << producer->id();
