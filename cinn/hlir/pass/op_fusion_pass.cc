@@ -275,7 +275,9 @@ class OpFusionPassHelper : public FusionHelperBase {
           {framework::kBroadcast,
            [](const FusionHelperBase* helper, const Node* producer, const GroupPtr& consumer) -> bool {
              VLOG(4) << "in reduction broadcast fusion relation . producer.node_name=" << producer->attrs.node_name
-                     << "consumer.node_name=" << (*(consumer->master_nodes.begin()))->attrs.node_name;
+                     << producer->id()
+                     << "  consumer.node_name=" << (*(consumer->master_nodes.begin()))->attrs.node_name
+                     << (*(consumer->master_nodes.begin()))->id();
              if (is_same_size(helper, producer, consumer)) {
                VLOG(4) << "in reduction broadcast fusion relation is_same_size=true";
              }
