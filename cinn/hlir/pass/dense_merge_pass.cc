@@ -97,7 +97,7 @@ class DenseMergePassHelper : public FusionHelperBase {
         dense_op_map[sign] = {dense_op};
       }
     }
-
+    VLOG(4) << "DoMerge after gen dense_op_map" << node->id() << " pos " << pos << ", side: " << side;
     for (auto dense_op : dense_op_map) {
       if (dense_op.second.size() <= 1) {
         continue;
@@ -127,6 +127,7 @@ class DenseMergePassHelper : public FusionHelperBase {
 
         removed_node_set_.insert(op);
         graph_->DropNode(op);
+        VLOG(4) << "DoMerge after add new node_tmp" << node_tmp->id() << ", side: " << side;
       }
     }
   }
