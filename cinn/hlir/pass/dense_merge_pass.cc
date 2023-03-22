@@ -16,6 +16,8 @@
 #include "cinn/common/type.h"
 #include "cinn/hlir/pass/fusion_helper_base.h"
 
+DECLARE_bool(cinn_gen_viz_groups);
+
 namespace cinn {
 namespace hlir {
 namespace pass {
@@ -160,8 +162,18 @@ class DenseMergePassHelper : public FusionHelperBase {
 };
 
 void DenseMergePassInternal(Graph* graph) {
+  if (FLAGS_cinn_gen_viz_groups) {
+    VLOG(4) << "Before DenseMergePass Viz:\n";
+    graph->VisualizeGroupedGraph(std::unordered_set<std::string>{});
+    VLOG(4) << "Before DenseMergePass Viz END:\n";
+  }
   DenseMergePassHelper dense_merge_pass_helper(graph);
   dense_merge_pass_helper();
+  if (FLAGS_cinn_gen_viz_groups) {
+    VLOG(4) << "After DenseMergePass Viz:\n";
+    graph->VisualizeGroupedGraph(std::unordered_set<std::string>{});
+    VLOG(4) << "After DenseMergePass Viz END:\n";
+  }
 }
 
 }  // namespace pass
