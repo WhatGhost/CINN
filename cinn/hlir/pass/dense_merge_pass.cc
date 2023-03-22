@@ -65,7 +65,7 @@ class DenseMergePassHelper : public FusionHelperBase {
         rhs_ops.push_back(op);
       }
     }
-
+    VLOG(4) << "before run left&right merge for node " << node->id();
     if (lhs_ops.size() > 1) LeftMerge(node, lhs_ops);
     if (rhs_ops.size() > 1) RightMerge(node, rhs_ops);
   }

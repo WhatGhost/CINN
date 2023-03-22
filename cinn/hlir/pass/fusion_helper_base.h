@@ -35,7 +35,10 @@ class FusionHelperBase {
   FusionHelperBase(const framework::Graph* graph)
       : shape_dict_(graph->GetAttrs<absl::flat_hash_map<std::string, shape_t>>("infershape")), target_(graph->target_) {
     // get op pattern dict
+    VLOG(4) << "Before get op_pattern_dict_ in FusionHelperBase constructor";
     op_pattern_dict_ = &framework::Operator::GetAttrs<OpPatternKind>("OpPattern");
+    VLOG(4) << "After get op_pattern_dict_ in FusionHelperBase constructor";
+    VLOG(4) << "graph's outputs size = " << graph->outputs.size();
     // output node set
     for (auto node_data : graph->outputs) {
       CHECK(node_data->source_node.get());
