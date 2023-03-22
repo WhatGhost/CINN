@@ -44,6 +44,7 @@ class DenseMergePassHelper : public FusionHelperBase {
         continue;
       }
       if (node->safe_as<NodeData>()) {
+        VLOG(4) << "Before mergedense node " << node->id();
         MergeDense(node->safe_as<NodeData>());
       }
     }
@@ -168,6 +169,7 @@ void DenseMergePassInternal(Graph* graph) {
     VLOG(4) << "Before DenseMergePass Viz END:\n";
   }
   DenseMergePassHelper dense_merge_pass_helper(graph);
+  VLOG(4) << "DenseMergePassHelper INIT ";
   dense_merge_pass_helper();
   if (FLAGS_cinn_gen_viz_groups) {
     VLOG(4) << "After DenseMergePass Viz:\n";
