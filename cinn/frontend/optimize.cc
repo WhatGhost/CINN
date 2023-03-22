@@ -65,7 +65,7 @@ OptimizeOptions DefaultTrainingOptimizeOptions() {
   options.program_passes.emplace_back("DeadCodeEliminate");
 
   options.graph_passes = {"ConstantFolding"};
-  // options.graph_passes.push_back("DenseMergePass");
+  options.graph_passes.emplace_back("DenseMergePass");
 
   if (FLAGS_cinn_use_custom_call) {
     options.graph_passes.emplace_back("TransToCustomCallPass");
