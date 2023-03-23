@@ -115,32 +115,32 @@ class DenseMergePassHelper : public FusionHelperBase {
       node->LinkTo(node_tmp);
       for (auto op : dense_op.second) {
         if (op == NULL || op == nullptr) {
-          std::cerr << "[WRONG] is null";
+          std::cerr << "[WRONG] is null" << std::endl;
         }
-        std::cerr << "DoMerge before unlink op ";
+        std::cerr << "DoMerge before unlink op " << std::endl;
         node->UnLinkSingleTo(op);
-        std::cerr << "DoMerge after unlink op ";
+        std::cerr << "DoMerge after unlink op " << std::endl;
         // link to new node
         op->inlinks_in_order()[pos]->source()->LinkTo(node_tmp);
-        std::cerr << "DoMerge after link to node_tmp ";
+        std::cerr << "DoMerge after link to node_tmp " << std::endl;
         // unlink old dense node
         op->inlinks_in_order()[pos]->source()->UnLinkSingleTo(op);
-        std::cerr << "DoMerge after op's inlink unlink op ";
+        std::cerr << "DoMerge after op's inlink unlink op " << std::endl;
         // dense_node_data link to node_tmp
         auto op_node_data = GetNodeData(op);
         op->UnLinkSingleTo(op_node_data);
-        std::cerr << "DoMerge after op unlink node_data ";
+        std::cerr << "DoMerge after op unlink node_data " << std::endl;
         node_tmp->LinkTo(op_node_data);
-        std::cerr << "DoMerge after node_tmp link node_data ";
+        std::cerr << "DoMerge after node_tmp link node_data " << std::endl;
         // update node tmp.
         op_node_data->source_node.Reset(node_tmp);
-        std::cerr << "DoMerge after reset node_data ";
+        std::cerr << "DoMerge after reset node_data " << std::endl;
 
         removed_node_set_.insert(op);
         graph_->DropNode(op);
         // auto tmp = dense_op.second[1];
-        std::cerr << "DoMerge after add new node_tmp" << node_tmp->id() << ", side: " << side;
-        std::cerr << "DoMerge dense_op.second.size = " << dense_op.second.size();
+        std::cerr << "DoMerge after add new node_tmp" << node_tmp->id() << ", side: " << side << std::endl;
+        std::cerr << "DoMerge dense_op.second.size = " << dense_op.second.size() << std::endl;
       }
     }
   }

@@ -163,14 +163,14 @@ class GraphNode : public Object {
     if (other == this) return;
     // remove single outlink
     // VLOG(4) << "UnLinkSingleTo: ";
-    std::cerr << "UnLinkSingleTo: ";
+    std::cerr << "UnLinkSingleTo: " << std::endl;
     {
       auto it = std::find_if(outlinks_.begin(), outlinks_.end(), [&](const Shared<GraphEdge>& x) {
         return x->source() == this && x->sink() == other;
       });
       if (it != outlinks_.end()) outlinks_.erase(it);
     }
-    std::cerr << "UnLinkSingleTo after this->outlink ";
+    std::cerr << "UnLinkSingleTo after this->outlink " << std::endl;
     // remove single inlink
     {
       auto it = std::find_if(other->inlinks_.begin(), other->inlinks_.end(), [&](const Shared<GraphEdge>& x) {

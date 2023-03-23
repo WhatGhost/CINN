@@ -71,6 +71,8 @@ class FusionHelperBase {
   }
 
   NodeData* GetNodeData(const Node* node) const {
+    std::cerr << "in GetNodeData before get node data" << std::endl;
+    std::cerr << "in GetNodeData node->outlinks().size()=" << node->outlinks().size() << std::endl;
     auto node_data = (*node->outlinks().begin())->sink()->safe_as<NodeData>();
     CHECK(node_data);
     return node_data;
