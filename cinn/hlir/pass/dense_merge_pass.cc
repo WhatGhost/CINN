@@ -115,32 +115,32 @@ class DenseMergePassHelper : public FusionHelperBase {
       node->LinkTo(node_tmp);
       for (auto op : dense_op.second) {
         if (op == NULL || op == nullptr) {
-          VLOG(4) << "[WRONG] is null";
+          std::cerr << "[WRONG] is null";
         }
-        VLOG(4) << "DoMerge before unlink op ";
+        std::cerr << "DoMerge before unlink op ";
         node->UnLinkSingleTo(op);
-        VLOG(4) << "DoMerge after unlink op ";
+        std::cerr << "DoMerge after unlink op ";
         // link to new node
         op->inlinks_in_order()[pos]->source()->LinkTo(node_tmp);
-        VLOG(4) << "DoMerge after link to node_tmp ";
+        std::cerr << "DoMerge after link to node_tmp ";
         // unlink old dense node
         op->inlinks_in_order()[pos]->source()->UnLinkSingleTo(op);
-        VLOG(4) << "DoMerge after op's inlink unlink op ";
+        std::cerr << "DoMerge after op's inlink unlink op ";
         // dense_node_data link to node_tmp
         auto op_node_data = GetNodeData(op);
         op->UnLinkSingleTo(op_node_data);
-        VLOG(4) << "DoMerge after op unlink node_data ";
+        std::cerr << "DoMerge after op unlink node_data ";
         node_tmp->LinkTo(op_node_data);
-        VLOG(4) << "DoMerge after node_tmp link node_data ";
+        std::cerr << "DoMerge after node_tmp link node_data ";
         // update node tmp.
         op_node_data->source_node.Reset(node_tmp);
-        VLOG(4) << "DoMerge after reset node_data ";
+        std::cerr << "DoMerge after reset node_data ";
 
         removed_node_set_.insert(op);
         graph_->DropNode(op);
         // auto tmp = dense_op.second[1];
-        VLOG(4) << "DoMerge after add new node_tmp" << node_tmp->id() << ", side: " << side;
-        VLOG(4) << "DoMerge dense_op.second.size = " << dense_op.second.size();
+        std::cerr << "DoMerge after add new node_tmp" << node_tmp->id() << ", side: " << side;
+        std::cerr << "DoMerge dense_op.second.size = " << dense_op.second.size();
       }
     }
   }
