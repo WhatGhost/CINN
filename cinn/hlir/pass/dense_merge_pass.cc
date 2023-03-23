@@ -110,9 +110,11 @@ class DenseMergePassHelper : public FusionHelperBase {
       node_tmp->attrs.attr_store["side"]        = side;
       node_tmp->attrs.attr_store["custom_call"] = std::string("cinn_call_batched_cublas");
       VLOG(4) << "DoMerge after gen new node_tmp" << node_tmp->id() << ", side: " << side;
+      VLOG(4) << "DoMerge dense_op.second.size = " << dense_op.second.size();
       // update inlink.
       node->LinkTo(node_tmp);
       for (auto op : dense_op.second) {
+        VLOG(4) << "DoMerge before unlink op " << op->id() << ", side: " << side;
         node->UnLinkSingleTo(op);
         VLOG(4) << "DoMerge after unlink op " << op->id() << ", side: " << side;
         // link to new node
