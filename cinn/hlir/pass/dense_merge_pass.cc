@@ -114,6 +114,9 @@ class DenseMergePassHelper : public FusionHelperBase {
       // update inlink.
       node->LinkTo(node_tmp);
       for (auto op : dense_op.second) {
+        if (op == NULL || op == nullptr) {
+          VLOG(4) << "[WRONG] is null";
+        }
         VLOG(4) << "DoMerge before unlink op ";
         node->UnLinkSingleTo(op);
         VLOG(4) << "DoMerge after unlink op ";

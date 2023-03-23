@@ -162,7 +162,7 @@ class GraphNode : public Object {
   void UnLinkSingleTo(GraphNode* other) {
     if (other == this) return;
     // remove single outlink
-    VLOG(4) << "UnLinkSingleTo: " << other->id();
+    VLOG(4) << "UnLinkSingleTo: ";
     {
       auto it = std::find_if(outlinks_.begin(), outlinks_.end(), [&](const Shared<GraphEdge>& x) {
         return x->source() == this && x->sink() == other;
