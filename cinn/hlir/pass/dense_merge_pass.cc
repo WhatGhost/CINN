@@ -109,21 +109,27 @@ class DenseMergePassHelper : public FusionHelperBase {
       node_tmp->attrs.attr_store                = dense_op.second[0]->attrs.attr_store;
       node_tmp->attrs.attr_store["side"]        = side;
       node_tmp->attrs.attr_store["custom_call"] = std::string("cinn_call_batched_cublas");
-
+      VLOG(4) << "DoMerge after gen new node_tmp" << node_tmp->id() << ", side: " << side;
       // update inlink.
       node->LinkTo(node_tmp);
       for (auto op : dense_op.second) {
         node->UnLinkSingleTo(op);
+        VLOG(4) << "DoMerge after unlink op " << op->id() << ", side: " << side;
         // link to new node
         op->inlinks_in_order()[pos]->source()->LinkTo(node_tmp);
+        VLOG(4) << "DoMerge after link to node_tmp ";
         // unlink old dense node
         op->inlinks_in_order()[pos]->source()->UnLinkSingleTo(op);
+        VLOG(4) << "DoMerge after op's inlink unlink op ";
         // dense_node_data link to node_tmp
         auto op_node_data = GetNodeData(op);
         op->UnLinkSingleTo(op_node_data);
+        VLOG(4) << "DoMerge after op unlink node_data ";
         node_tmp->LinkTo(op_node_data);
+        VLOG(4) << "DoMerge after node_tmp link node_data ";
         // update node tmp.
         op_node_data->source_node.Reset(node_tmp);
+        VLOG(4) << "DoMerge after reset node_data ";
 
         removed_node_set_.insert(op);
         graph_->DropNode(op);
