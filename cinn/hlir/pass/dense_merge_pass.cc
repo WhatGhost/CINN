@@ -114,9 +114,9 @@ class DenseMergePassHelper : public FusionHelperBase {
       // update inlink.
       node->LinkTo(node_tmp);
       for (auto op : dense_op.second) {
-        VLOG(4) << "DoMerge before unlink op " << op->id() << ", side: " << side;
+        VLOG(4) << "DoMerge before unlink op ";
         node->UnLinkSingleTo(op);
-        VLOG(4) << "DoMerge after unlink op " << op->id() << ", side: " << side;
+        VLOG(4) << "DoMerge after unlink op ";
         // link to new node
         op->inlinks_in_order()[pos]->source()->LinkTo(node_tmp);
         VLOG(4) << "DoMerge after link to node_tmp ";
@@ -135,7 +135,7 @@ class DenseMergePassHelper : public FusionHelperBase {
 
         removed_node_set_.insert(op);
         graph_->DropNode(op);
-        auto tmp = dense_op.second[1];
+        // auto tmp = dense_op.second[1];
         VLOG(4) << "DoMerge after add new node_tmp" << node_tmp->id() << ", side: " << side;
         VLOG(4) << "DoMerge dense_op.second.size = " << dense_op.second.size();
       }
