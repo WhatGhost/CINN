@@ -135,6 +135,7 @@ class DenseMergePassHelper : public FusionHelperBase {
 
         removed_node_set_.insert(op);
         graph_->DropNode(op);
+        auto tmp = dense_op.second[1];
         VLOG(4) << "DoMerge after add new node_tmp" << node_tmp->id() << ", side: " << side;
         VLOG(4) << "DoMerge dense_op.second.size = " << dense_op.second.size();
       }
