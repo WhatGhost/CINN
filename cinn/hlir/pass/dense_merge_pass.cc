@@ -117,6 +117,7 @@ class DenseMergePassHelper : public FusionHelperBase {
         if (op == NULL || op == nullptr) {
           std::cerr << "[WRONG] is null" << std::endl;
         }
+        std::cerr << "dense op is " << op->id() << std::endl;
         std::cerr << "DoMerge before unlink op " << std::endl;
         node->UnLinkSingleTo(op);
         std::cerr << "DoMerge after unlink op " << std::endl;
