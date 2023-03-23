@@ -75,9 +75,6 @@ class FusionHelperBase {
     if (node == NULL) {
       std::cerr << "in GetNodeData node is NULL=" << std::endl;
     }
-    if (node->outlinks == NULL) {
-      std::cerr << "in GetNodeData node has no outlinks" << std::endl;
-    }
     std::cerr << "hello" << node->outlinks().size()
               << "in GetNodeData node->outlinks().size()=" << node->outlinks().size() << std::endl;
     auto node_data = (*node->outlinks().begin())->sink()->safe_as<NodeData>();
