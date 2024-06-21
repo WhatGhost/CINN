@@ -21,8 +21,11 @@ namespace cinn {
 namespace hlir {
 namespace pass {
 
-#define CONDITION_FUNC(func) \
-  inline bool func(const FusionHelperBase* helper, const Node* producer, const std::shared_ptr<Graph::Group>& consumer)
+#define CONDITION_FUNC(func)                                      \
+  inline bool func(const FusionHelperBase* helper,                \
+                   const Node* producer,                          \
+                   const std::shared_ptr<Graph::Group>& consumer, \
+                   const Node* consumer_node = nullptr)
 
 CONDITION_FUNC(always_fuse) { return true; }
 
@@ -249,6 +252,31 @@ CONDITION_FUNC(horizontal_with_same_size) {
     }
   }
   return false;
+}
+
+CONDITION_FUNC(elementwise_broadcast_same_size_in_axes) {
+  if (consumer_node == nullptr) {
+    return false;
+  }
+  auto producer_shape      = helper->GetNodeDataShape(producer);
+  auto consumer_node_shape = helper->GetNodeDataShape(consumer_node);
+  if (consumer_node->attrs.attr_store.find("broadcast_axes") == consumer_node->attrs.attr_store.end()) {
+    return false;
+  }
+  auto broadcast_axes = absl::get<std::vector<int>>(consumer_node->attrs.attr_store.at("broadcast_axes"));
+  if (producer_shape.size() != broadcast_axes.size()) {
+    VLOG(4) << "producer.shape.size is wrong = " << producer_shape.size()
+            << " producer.node_name=" << producer->attrs.node_name << producer->id();
+    return false;
+  }
+  // bool is_same_in_axes = false;
+  for (int idx = 0; idx < broadcast_axes.size(); ++idx) {
+    if (producer_shape[idx] != consumer_node_shape[broadcast_axes[idx]]) {
+      return false;
+    }
+  }
+
+  return true;
 }
 
 #undef CONDITION_FUNC

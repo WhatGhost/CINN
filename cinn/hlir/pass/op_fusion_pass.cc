@@ -31,7 +31,7 @@ using common::GraphNode;
 using GroupPtr  = std::shared_ptr<Graph::Group>;
 using GroupList = std::vector<GroupPtr>;
 
-using ConditionFunction = std::function<bool(const FusionHelperBase*, const Node*, const GroupPtr&)>;
+using ConditionFunction = std::function<bool(const FusionHelperBase*, const Node*, const GroupPtr&, const Node*)>;
 
 // Op Fusion Pass which performs Ops fusion, Ops are fused
 // "vertically", meaning producing Ops are fused into their consumers
@@ -219,7 +219,18 @@ class OpFusionPassHelper : public FusionHelperBase {
           {framework::kElementWise, always_fuse},
           // must be horizontal, as Elementwise + Broadcast is left to fusion merge pass.
           {framework::kBroadcast,
-           [](const FusionHelperBase* helper, const Node* producer, const GroupPtr& consumer) -> bool {
+           [](const FusionHelperBase* helper,
+              const Node* producer,
+              const GroupPtr& consumer,
+              const Node* consumer_node = nullptr) -> bool {
+             VLOG(4) << "in elementwise broadcast fusion relation . producer.node_name=" << producer->attrs.node_name
+                     << producer->id()
+                     << "  consumer.node_name=" << (*(consumer->master_nodes.begin()))->attrs.node_name
+                     << (*(consumer->master_nodes.begin()))->id();
+             if (elementwise_broadcast_same_size_in_axes(helper, producer, consumer, consumer_node)) {
+               VLOG(4) << "in elementwise broadcast fusion relation . elementwise_broadcast_same_size_in_axes = true";
+               return true;
+             }
              if (is_same_size(helper, producer, consumer)) {
                return true;
              }
@@ -270,7 +281,17 @@ class OpFusionPassHelper : public FusionHelperBase {
           {framework::kElementWise, without_last_dimension_in_reduce},
           // must be horizontal relation, check with same output shape and without last dimension in reduce.
           {framework::kBroadcast,
-           [](const FusionHelperBase* helper, const Node* producer, const GroupPtr& consumer) -> bool {
+           [](const FusionHelperBase* helper,
+              const Node* producer,
+              const GroupPtr& consumer,
+              const Node* consumer_node = nullptr) -> bool {
+             VLOG(4) << "in reduction broadcast fusion relation . producer.node_name=" << producer->attrs.node_name
+                     << producer->id()
+                     << "  consumer.node_name=" << (*(consumer->master_nodes.begin()))->attrs.node_name
+                     << (*(consumer->master_nodes.begin()))->id();
+             if (is_same_size(helper, producer, consumer)) {
+               VLOG(4) << "in reduction broadcast fusion relation is_same_size=true";
+             }
              return is_same_size(helper, producer, consumer) &&
                     without_last_dimension_in_reduce(helper, producer, consumer);
            }},
@@ -332,7 +353,8 @@ class OpFusionPassHelper : public FusionHelperBase {
       // second step: check producer can be fused into consumer group
       VLOG(3) << "Call ConditionFunction, Producer Op Pattern : " << GetOpKind(producer)
               << " , Consumer Group Pattern : " << consumer_group->op_pattern_kind;
-      return relation.fusion_op_kind[consumer_group->op_pattern_kind](this, producer, fusion_groups_[consumer]);
+      return relation.fusion_op_kind[consumer_group->op_pattern_kind](
+          this, producer, fusion_groups_[consumer], consumer);
     }
 
     return false;
